@@ -6,6 +6,7 @@ RUN python3.11 -m pip install --upgrade pip && \
     python3.11 -m pip install --upgrade -r /requirements.txt --no-cache-dir && \
     rm /requirements.txt
 
-ADD src .
+ADD . .
 
-CMD [ "python3.11", "-u", "rp_handler.py" ]
+
+CMD [ "python3.11", "-u", "main.py" ]

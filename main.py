@@ -3,10 +3,13 @@ from runpod.serverless.utils.rp_validator import validate
 from runpod.serverless.utils.rp_upload import upload_file_to_bucket
 from runpod.serverless.utils import rp_download, rp_cleanup
 
+from rp_schema import INPUT_SCHEMA
 
+import os
 import time
 import torch
 import base64
+import gdown
 from PIL import Image, ImageFile
 from enhancer_engine import RealESRGAN
 import io
@@ -37,7 +40,20 @@ def stringToImage(base64_string):
     return Image.open(io.BytesIO(imgdata))
 
 Enhance_model = RealESRGAN(device, scale=4)
-Enhance_model.load_weights('weights/RealESRGAN_x4.pth', download=True)
+checkpoint_path = "weights"
+
+checkpoint_path = os.path.join(checkpoint_path, "RealESRGAN_x4.pth")
+# check weigts file if its empty then download file else pass it as it is 
+if len(os.listdir('weights')) == 0:
+    # download  the model
+    print("Model file not found. Downloading...")
+    link = "https://drive.google.com/file/d/1K0csgiub_sUbxASV1lvE7YKcmBgsgPAq/view?usp=drive_link"  # Replace with your Google Drive link
+    gdown.download(link, checkpoint_path, quiet=False,fuzzy=True)
+    print("Download complete.")
+    pass
+else:    
+    pass
+Enhance_model.load_weights('weights/RealESRGAN_x4.pth', download=False)
 
 def run(job):
     # Get the uploaded image from the request

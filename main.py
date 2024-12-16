@@ -56,14 +56,14 @@ def run(job):
        print("Comma not found in the data URI.")  
        base64_data = base64Image
     img =  stringToImage(base64_data)
-    img.save("upscaler_requsted_image.png")
-    new_image = img#Image.open("upscaler_requsted_image.png")
+    # img.save("upscaler_requsted_image.png")
+    # new_image = img#Image.open("upscaler_requsted_image.png")
     # Perform image enhancement using the model
     stime = time.perf_counter()
-    sr_image = Enhance_model.predict(new_image)
+    sr_image = Enhance_model.predict(img)
     etime = time.perf_counter()
     print(f'Interence time : {str(etime-stime)} sec')
-    sr_image.save("upscaler_result_image.png")
+    # sr_image.save("upscaler_result_image.png")
     bio = io.BytesIO()
     sr_image.save(bio, "PNG")
     bio.seek(0)

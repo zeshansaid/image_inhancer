@@ -42,31 +42,44 @@ def upload_or_base64_encode(file_name, img_path):
         encoded_string = base64.b64encode(image_file.read())
         return encoded_string.decode("utf-8")
 
-
-
 # Take in base64 string and return PIL image
 def stringToImage(base64_string):
     logging.debug("Converting base64 string to image.")
     imgdata = base64.b64decode(base64_string)
     return Image.open(io.BytesIO(imgdata))
 
-Enhance_model = RealESRGAN(device, scale=4)
-checkpoint_path = "weights"
+# Path for the weights directory and model file
+weights_dir = "weights"
+checkpoint_path = os.path.join(weights_dir, "RealESRGAN_x4.pth")
 
-checkpoint_path = os.path.join(checkpoint_path, "RealESRGAN_x4.pth")
-# check weigts file if its empty then download file else pass it as it is 
-if len(os.listdir('weights')) == 0:
-    # download  the model
+# Ensure the weights directory exists
+if not os.path.exists(weights_dir):
+    os.makedirs(weights_dir)
+    logging.info(f"Created directory: {weights_dir}")
+
+# Check if the model file exists
+if not os.path.exists(checkpoint_path):
     print("Model file not found. Downloading...")
     logging.info("Model file not found. Downloading...")
-    link = "https://drive.google.com/file/d/1K0csgiub_sUbxASV1lvE7YKcmBgsgPAq/view?usp=drive_link"  # Replace with your Google Drive link
-    gdown.download(link, checkpoint_path, quiet=False,fuzzy=True)
-    print("Download complete.")
-    logging.info("Download complete.")
-    pass
+    
+    # Google Drive link (use the correct direct download link or fuzzy=True for ID)
+    link = "https://drive.google.com/uc?id=1K0csgiub_sUbxASV1lvE7YKcmBgsgPAq"  # Updated for direct download
+    
+    # Download the model file
+    gdown.download(link, checkpoint_path, quiet=False, fuzzy=True)
+    
+    if os.path.exists(checkpoint_path):
+        print("Download complete.")
+        logging.info("Download complete.")
+    else:
+        print("Error: Download failed.")
+        logging.error("Error: Download failed.")
 else:
-    logging.info("Model file found. Skipping download.")   
-    pass
+    logging.info("Model file found. Skipping download.")
+    print("Model file found. Skipping download.")
+
+
+Enhance_model = RealESRGAN(device, scale=4)
 Enhance_model.load_weights('weights/RealESRGAN_x4.pth', download=False)
 
 def run(job):

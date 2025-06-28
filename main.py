@@ -115,7 +115,11 @@ def run(job):
         etime = time.perf_counter()
         print(f'Interence time : {str(etime-stime)} sec')
         logging.info(f"Inference completed in {etime - stime:.2f} seconds.")
-        upload_result = cloudinary.uploader.upload(image)
+
+        # convert Image to byte io to send it back to the client
+        output = io.BytesIO()
+        image.save(output, format="PNG")
+        upload_result = cloudinary.uploader.upload(output)
         #image.save("output.png")
         # adding cloudinary in to save the image and return to mobile app 
         return {"image": upload_result['secure_url']}

@@ -119,7 +119,7 @@ def run(job):
         # convert Image to byte io to send it back to the client
         output = io.BytesIO()
         image.save(output, format="PNG")
-        upload_result = cloudinary.uploader.upload(output)
+        upload_result = cloudinary.uploader.upload(output.getvalue())
         #image.save("output.png")
         # adding cloudinary in to save the image and return to mobile app 
         return {"image": upload_result['secure_url']}

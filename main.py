@@ -99,6 +99,7 @@ def run(job):
     logging.info("New upscaler request received.")
     print("New upscaler request received.")
     job_input = job['input']
+    print(f"new Request recive {time.time()} : {job_input}")
 
     try:
         response = requests.get(job_input['image'], stream=True)

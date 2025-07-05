@@ -109,6 +109,7 @@ def run(job):
         return {"error": "Error: Failed to download image."}
     
     try:
+        print("Processing Start ....")
         # Use BytesIO to treat the raw response content as a file-like object
         image = Image.open(io.BytesIO(response.content))
         stime = time.perf_counter()

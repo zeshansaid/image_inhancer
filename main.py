@@ -171,7 +171,7 @@ def run(job):
         
     except Exception as e:
         logging.error(f"Error: {e}")
-        return {"error": "Error: Failed to process image."}
+        return {"error": f"Error: Failed to process image. {e}"}
     
     #base64Image = job_input['image']
     

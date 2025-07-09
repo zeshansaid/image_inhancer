@@ -18,7 +18,7 @@ import io
 import cloudinary.uploader
 import cloudinary.api
 
-
+target_size_kb=100
 # Cloudinary configuration (as shown above)
 cloudinary.config(
     cloud_name='dhut1eqjs',
@@ -112,8 +112,49 @@ def run(job):
         print("Processing Start ....")
         # Use BytesIO to treat the raw response content as a file-like object
         image = Image.open(io.BytesIO(response.content))
+        # Check current size
+        current_size_bytes = os.path.getsize(image)
+        current_size_kb = current_size_bytes / 1024
+
+        img = image
+        print(f"Original image size: {current_size_kb:.2f} KB")
+        if current_size_kb > target_size_kb:
+            print(f"Image is larger than {target_size_kb} KB. Reducing size...")
+
+            # Option 1: Reduce quality (for JPEG)
+            if img.format == "JPEG":
+                output_buffer = io.BytesIO()
+                img.save(output_buffer, format="JPEG", quality=85) # Adjust quality as needed
+                reduced_size_kb = output_buffer.tell() / 1024
+                print(f"Size after quality reduction: {reduced_size_kb:.2f} KB")
+                if reduced_size_kb > target_size_kb:
+                    # If still too large, try resizing
+                    print("Quality reduction not enough, attempting resize...")
+                    width, height = img.size
+                    new_width = int(width * 0.8) # Reduce by 20%
+                    new_height = int(height * 0.8)
+                    img = img.resize((new_width, new_height), Image.LANCZOS) # Use LANCZOS for better quality
+                    #img.save(image_path, format="JPEG", quality=85)
+                    #print(f"Image resized and saved to {image_path}")
+                #else:
+                    #with open(image_path, 'wb') as f:
+                        #f.write(output_buffer.getvalue())
+                    #print(f"Image quality reduced and saved to {image_path}")
+
+            # Option 2: Resize (for other formats or if quality reduction isn't enough)
+            else:
+                width, height = img.size
+                new_width = int(width * 0.8) # Reduce by 20%
+                new_height = int(height * 0.8)
+                img = img.resize((new_width, new_height), Image.LANCZOS)
+                #img.save(image_path) # Save with default quality for other formats
+                #print(f"Image resized and saved to {image_path}")
+        else:
+            print("Image size is within the target limit.")
+
+
         stime = time.perf_counter()
-        image = Enhance_model.predict(image)
+        image = Enhance_model.predict(img)
         etime = time.perf_counter()
         print(f'Interence time : {str(etime-stime)} sec')
         logging.info(f"Inference completed in {etime - stime:.2f} seconds.")
@@ -122,6 +163,7 @@ def run(job):
         output = io.BytesIO()
         image.save(output, format="PNG")
         upload_result = cloudinary.uploader.upload(output.getvalue())
+        
         #image.save("output.png")
         # adding cloudinary in to save the image and return to mobile app 
         return {"image": upload_result['secure_url']}
